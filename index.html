@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Analog & Digital Clock (Fixed Hands)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap" rel="stylesheet">
+
+    <style>
+        /* =============================
+        CSS STYLING (UPDATED)
+        =============================
+        */
+        
+         :root {
+            --bg-color: #121212;
+            --clock-face-color: #1e1e1e;
+            --main-glow: #00bcd4;
+            /* Cyan */
+            --center-dot-color: #ff5722;
+            /* Orange */
+            --hand-color-hour: #ffffff;
+            --hand-color-minute: #cccccc;
+            --hand-color-second: var(--main-glow);
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: inset 10px 10px 20px rgba(0, 0, 0, 0.7), inset -10px -10px 20px rgba(40, 40, 40, 0.5);
+        }
+        /* --- 1. Analog Clock Style --- */
+        
+        .analog-clock {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: var(--clock-face-color);
+            border: 5px solid #333;
+            box-shadow: 0 0 20px var(--main-glow), inset 0 0 10px rgba(0, 0, 0, 0.8), 0 0 50px rgba(0, 0, 0, 0.8);
+            margin-bottom: 30px;
+        }
+        /* सेंटर पिवट पॉइंट */
+        
+        .analog-clock::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: var(--center-dot-color);
+            z-index: 10;
+        }
+        /* सभी सुइयों के लिए कॉमन कंटेनर */
+        
+        .hand-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* सुइयों के लिए आवश्यक बदलाव: उन्हें घड़ी के केंद्र से घूमना चाहिए */
+        
+        .hour-hand,
+        .minute-hand,
+        .second-hand {
+            position: absolute;
+            height: 100%;
+            /* सुई का घूमने का केंद्र (Pivot point) घड़ी का सेंटर होगा */
+            transform-origin: bottom center;
+        }
+        /* घंटे की सुई */
+        
+        .hour-hand {
+            width: 6px;
+            height: 80px;
+            /* सुई की लंबाई (Length) */
+            background: var(--hand-color-hour);
+            border-radius: 6px 6px 3px 3px;
+            /* इसे सेंटर से थोड़ा ऊपर पुश करें ताकि नोक सेंटर से 80px ऊपर हो */
+            top: calc(50% - 80px);
+            z-index: 7;
+        }
+        /* मिनट की सुई */
+        
+        .minute-hand {
+            width: 4px;
+            height: 110px;
+            /* सुई की लंबाई */
+            background: var(--hand-color-minute);
+            border-radius: 4px 4px 2px 2px;
+            top: calc(50% - 110px);
+            z-index: 8;
+        }
+        /* सेकंड की सुई */
+        
+        .second-hand {
+            width: 2px;
+            height: 130px;
+            /* सुई की लंबाई */
+            background: var(--hand-color-second);
+            border-radius: 2px 2px 1px 1px;
+            top: calc(50% - 130px);
+            z-index: 9;
+            /* सुई के घूमने को स्मूथ करने के लिए */
+            transition: transform 0.05s linear;
+        }
+        /* मार्कर (निशान) - वैकल्पिक (Optional) */
+        
+        .mark {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.3;
+        }
+        
+        .mark12 {
+            transform: rotate(0deg);
+            top: 5px;
+        }
+        
+        .mark3 {
+            transform: rotate(90deg);
+            bottom: 5px;
+            align-items:center;
+        }
+        
+        .mark6 {
+            transform: rotate(180deg);
+            
+               align-items:center;
+            top: 140px;
+        }
+        
+        .mark9 {
+            transform: rotate(270deg);
+            left: 5px;
+            top: 140px;
+        }
+        /* --- 2. Digital Clock Style --- */
+        
+        .digital-display {
+            font-family: 'Major Mono Display', monospace;
+            font-size: 2.5rem;
+            color: var(--main-glow);
+            letter-spacing: 3px;
+            text-shadow: 0 0 5px var(--main-glow);
+        }
+        
+        .date-display {
+            font-size: 1rem;
+            color: #aaa;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+
+        <div class="analog-clock">
+            <div class="mark mark12">12</div>
+            <div class="mark mark3">3</div>
+            <div class="mark mark6">6</div>
+            <div class="mark mark9">9</div>
+
+            <div class="hand-container">
+                <div id="hourHand" class="hour-hand"></div>
+            </div>
+            <div class="hand-container">
+                <div id="minuteHand" class="minute-hand"></div>
+            </div>
+            <div class="hand-container">
+                <div id="secondHand" class="second-hand"></div>
+            </div>
+        </div>
+
+        <div id="digitalDisplay" class="digital-display">00:00:00 AM</div>
+        <div id="dateDisplay" class="date-display"></div>
+    </div>
+
+    <script>
+        /* =============================
+                                        JAVASCRIPT FUNCTIONALITY (UPDATED)
+                                        =============================
+                                        */
+
+        const hr = document.getElementById('hourHand');
+        const mn = document.getElementById('minuteHand');
+        const sc = document.getElementById('secondHand');
+        const digitalDisplay = document.getElementById('digitalDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
+
+        function updateClock() {
+            const now = new Date();
+
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+
+            // --- 1. Analog Clock Logic (Suion ka Rotation) ---
+
+            // Note: rotation degree should be applied to the PARENT .hand-container, 
+            // but for simplicity and single file structure, we apply it to the hand elements here.
+
+            // घंटे की डिग्री: (घंटा * 30) + (मिनट * 0.5)
+            const hDeg = (hours % 12) * 30 + (minutes * 0.5);
+
+            // मिनट की डिग्री: (मिनट * 6) + (सेकंड * 0.1)
+            const mDeg = minutes * 6 + (seconds * 0.1);
+
+            // सेकंड की डिग्री: (सेकंड * 6)
+            const sDeg = seconds * 6;
+
+            // सुइयों को घुमाएँ (Rotate the hands)
+            // CSS में सुई को ऊपर की ओर पॉइंट करने के लिए सेट किया गया है (0deg पर 12 बजे)
+            hr.style.transform = `rotate(${hDeg}deg)`;
+            mn.style.transform = `rotate(${mDeg}deg)`;
+            sc.style.transform = `rotate(${sDeg}deg)`;
+
+            // --- 2. Digital Clock Logic (unchanged) ---
+
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+
+            const h = hours.toString().padStart(2, '0');
+            const m = minutes.toString().padStart(2, '0');
+            const s = seconds.toString().padStart(2, '0');
+
+            digitalDisplay.textContent = `${h}:${m}:${s} ${ampm}`;
+
+            // --- 3. Date Display (unchanged) ---
+            const options = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            };
+            dateDisplay.textContent = now.toLocaleDateString('en-IN', options);
+        }
+
+        // हर 1000 मिलीसेकंड (1 सेकंड) में घड़ी अपडेट करें
+        setInterval(updateClock, 1000);
+
+        // तुरंत घड़ी शुरू करें
+        updateClock();
+    </script>
+</body>
+
+</html>
